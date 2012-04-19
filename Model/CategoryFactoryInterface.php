@@ -17,4 +17,4 @@ interface CategoryFactoryInterface
     public function getCategoryClass();
 }
 
-?>
+

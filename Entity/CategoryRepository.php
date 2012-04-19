@@ -14,7 +14,7 @@ class CategoryRepository extends EntityRepository{
     public function findAll(PaginationInterface $pagination = null)
     {
         $em = $this->getEntityManager();
-        $q = $em->createQuery('SELECT cat from MQMCategoryBundle:Category cat');
+        $q = $em->createQuery('SELECT cat FROM MQMCategoryBundle:Category cat');
         if ($pagination) {
             $q = $pagination->paginateQuery($q);
         }
@@ -30,7 +30,7 @@ class CategoryRepository extends EntityRepository{
     public function findAllFamilies(PaginationInterface $pagination = null)
     {
         $em = $this->getEntityManager();
-        $q = $em->createQuery('SELECT cat from MQMCategoryBundle:Category cat WHERE cat.parentCategory is NULL ORDER BY cat.name ASC');
+        $q = $em->createQuery('SELECT cat FROM MQMCategoryBundle:Category cat WHERE cat.parentCategory is NULL ORDER BY cat.name ASC');
         if ($pagination) {
             $q = $pagination->paginateQuery($q);
         }
@@ -47,7 +47,7 @@ class CategoryRepository extends EntityRepository{
     public function findRandomFamilies($maxResults)
     {
         $em = $this->getEntityManager();
-        $q = $em->createQuery('SELECT cat from MQMCategoryBundle:Category cat WHERE cat.parentCategory is NULL');
+        $q = $em->createQuery('SELECT cat FROM MQMCategoryBundle:Category cat WHERE cat.parentCategory is NULL');
         $categories = $q->getResult();        
         if ($categories == null) {
             return null;
