@@ -2,9 +2,9 @@
 
 namespace MQM\CategoryBundle\Test\Category;
 
-use MQM\CategoryBundle\Category\CategoryInterface;
+
 use MQM\CategoryBundle\Model\CategoryManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Tests\Functional\AppKernel;
+
 
 class CategoryManagerTest extends \Symfony\Bundle\FrameworkBundle\Test\WebTestCase
 {   
