@@ -51,7 +51,7 @@ class Category implements CategoryInterface
      * @ORM\Column(name="modifiedAt", type="datetime", nullable=true)
      */
     private $modifiedAt;
-    
+
     /**
      * @Assert\Type(type="MQM\ImageBundle\Entity\Image")
      *
@@ -62,38 +62,40 @@ class Category implements CategoryInterface
      * @var ImageInterface $image
      */
     private $image;
-    
+
     /**
      * @ORM\ManyToOne(targetEntity="MQM\CategoryBundle\Entity\Category", inversedBy="categories", cascade={"persist"})
      * @ORM\JoinColumn(name="parentCategoryId", referencedColumnName="id")
-     * 
+     *
      * @var Category $parentCategory
      */
     private $parentCategory;
-    
+
     /**
      * //added cascade persist on 02/12/2011 as another way to save the parentCategory when only changing the array of categories directly but it's not tested that this way works (without setting the parentCategory manually)
-     * @ORM\OneToMany(targetEntity="MQM\CategoryBundle\Entity\Category", mappedBy="parentCategory", cascade={"persist"}) 
+     * @ORM\OneToMany(targetEntity="MQM\CategoryBundle\Entity\Category", mappedBy="parentCategory", cascade={"persist"})
      * @var ArrayCollection $categories
      */
     private $categories;
-    
+
     /**
-     * 
+     *
      * @ORM\OneToMany(targetEntity="MQM\ProductBundle\Entity\Product", mappedBy="category")
      * @var ArrayCollection $products
      */
     private $products;
-    
-    public function __construct(){
+
+    public function __construct()
+    {
         $this->createdAt = new \DateTime();
     }
-    
+
     /**
      *
      * {@inheritDoc}
      */
-    public function getOffer() {
+    public function getOffer()
+    {
         return $this->offer;
     }
 
@@ -101,44 +103,49 @@ class Category implements CategoryInterface
      *
      * {@inheritDoc}
      */
-    public function setOffer($offer) {
+    public function setOffer($offer)
+    {
         $this->offer = $offer;
     }
-    
+
     /**
      *
      * {@inheritDoc}
      */
-    public function getProducts() {
-            return $this->products;
+    public function getProducts()
+    {
+        return $this->products;
     }
 
     /**
      *
      * {@inheritDoc}
      */
-    public function setProducts($products) {
-            $this->products = $products;
+    public function setProducts($products)
+    {
+        $this->products = $products;
     }
 
     /**
      *
      * {@inheritDoc}
      */
-    public function getParentCategory() {
-            return $this->parentCategory;
+    public function getParentCategory()
+    {
+        return $this->parentCategory;
     }
 
     /**
      *
      * {@inheritDoc}
      */
-    public function addCategory(CategoryInterface $category){
-        if($this->categories == null){
+    public function addCategory(CategoryInterface $category)
+    {
+        if ($this->categories == null) {
             $this->categories = new ArrayCollection();
         }
         $this->categories [] = $category;
-        
+
         $category->setParentCategory($this); //IMPORTANT FOR THE SQL MAPPING AS THE PARENT CATEGORY IS WHAT KEEP THE HIERARCHY/DEPENDENCY INFO IN THE DATABASE BETWEEN CATEGORIES
     }
 
@@ -146,26 +153,29 @@ class Category implements CategoryInterface
      *
      * {@inheritDoc}
      */
-    public function getCategories() {
-            return $this->categories;
+    public function getCategories()
+    {
+        return $this->categories;
     }
 
     /**
      *
      * {@inheritDoc}
      */
-    public function setCategories($categories) {
-            $this->categories = $categories;
+    public function setCategories($categories)
+    {
+        $this->categories = $categories;
     }
 
     /**
      *
      * {@inheritDoc}
      */
-    public function setParentCategory($parentCategory) {
-            $this->parentCategory = $parentCategory;
+    public function setParentCategory($parentCategory)
+    {
+        $this->parentCategory = $parentCategory;
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -174,12 +184,13 @@ class Category implements CategoryInterface
     {
         return $this->id;
     }
-    
+
     /**
      *
      * {@inheritDoc}
      */
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
     }
 
@@ -254,20 +265,22 @@ class Category implements CategoryInterface
     {
         return $this->modifiedAt;
     }
-    
+
     /**
      *
      * {@inheritDoc}
      */
-    public function getImage(){
-    	return $this->image;
+    public function getImage()
+    {
+        return $this->image;
     }
-    
+
     /**
      *
      * {@inheritDoc}
      */
-    public function setImage($image){
+    public function setImage($image)
+    {
         $this->image = $image;
     }
 
@@ -275,12 +288,13 @@ class Category implements CategoryInterface
      *
      * {@inheritDoc}
      */
-    public function getRootCategory(){
+    public function getRootCategory()
+    {
         $parentCategory = $this->getParentCategory();
-        if($parentCategory== null){
+        if ($parentCategory == null) {
             return $this;
         }
-        else{
+        else {
             return $parentCategory->getRootCategory();
         }
     }
@@ -289,75 +303,65 @@ class Category implements CategoryInterface
      *
      * {@inheritDoc}
      */
-    public function getHierarchyDepth(){
+    public function getHierarchyDepth()
+    {
         $parentCategory = $this->getParentCategory();
-        if($parentCategory== null){
+        if ($parentCategory == null) {
             return 1;
         }
-        
-        else{
+
+        else {
             return 1 + $parentCategory->getHierarchyDepth();
         }
     }
-    
+
     /**
      *
      * {@inheritDoc}
      */
-    public function getAncestors(){
-        if($this->getParentCategory() == null){
+    public function getAncestors()
+    {
+        if ($this->getParentCategory() == null) {
             return array();
         }
-        else{
+        else {
             $ancestors = $this->getParentCategory()->getAncestors();
-            $ancestor = $this->getParentCategory();     
+            $ancestor = $this->getParentCategory();
             $ancestors[] = $ancestor;
-            
+
             return $ancestors;
         }
-        
-        //return array($this, $this, $this);
-    }    
-    
-    public function __toString() {
-       $depth = $this->getHierarchyDepth();
-       
-       $contentStart = "";
-       $contentEnd = "";
-       $name = $this->getName();
-       
-       if($depth == 1){
-           $contentStart = "";
-           $contentEnd = "";
-           $name = strtoupper($name);
-       }
-       else{
-           
-           //capitalize first character
-           $name = strtolower($name);
-           $name = ucfirst($name);
-           //end capitalizing first character
 
-           $depth = 2 * ($depth -1);
-           for ($index = 0; $index < $depth; $index++) {
-               $contentStart .='-';
-           }
-       }
-       return $contentStart . "  " . $name . "  " . $contentEnd;
-    }    
-    
-    function __clone(){
-        // If the entity has an identity, proceed as normal.
-        if ($this->id) {
-            
+        //return array($this, $this, $this);
+    }
+
+    public function __toString()
+    {
+        $depth = $this->getHierarchyDepth();
+        $contentStart = "";
+        $contentEnd = "";
+        $name = $this->getName();
+        if ($depth == 1) {
+            $contentStart = "";
+            $contentEnd = "";
+            $name = strtoupper($name);
         }
-        // otherwise do nothing, do NOT throw an exception!
-        
-        //reset images
-        if($this->image){
+        else {
+            $name = strtolower($name);
+            $name = ucfirst($name);
+            $depth = 2 * ($depth - 1);
+            for ($index = 0; $index < $depth; $index++) {
+                $contentStart .= '-';
+            }
+        }
+        return $contentStart . "  " . $name . "  " . $contentEnd;
+    }
+
+    function __clone()
+    {
+        if ($this->image) {
             $this->image = null;
         }
-        //end reseting the images
     }
 
     /**
